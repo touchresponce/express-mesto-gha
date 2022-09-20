@@ -5,18 +5,18 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.status(200).send({ data: cards }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 module.exports.deleteCard = (req, res) => {
-  const { cardId } = req.params._id;
+  const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
     .then((card) => res.status(200).send(card))
