@@ -36,3 +36,16 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
+
+// обновить определенного
+module.exports.updateUser = (req, res) => {
+  const { name, about } = req.body;
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true, runValidators: true }
+  )
+    .then((user) => res.status(200).send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
