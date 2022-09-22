@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const { BAD_REQUEST, SERVER_ERROR } = require("../utils/errors");
+const { BAD_REQUEST, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
 
 // создать
 module.exports.createUser = (req, res) => {
@@ -33,6 +33,7 @@ module.exports.getUser = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
+    .orFail(() => new Error("NotFound"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "CastError") {
@@ -83,6 +84,7 @@ module.exports.updateUser = (req, res) => {
     { name, about },
     { new: true, runValidators: true }
   )
+    .orFail(() => new Error("NotFound"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
