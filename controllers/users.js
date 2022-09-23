@@ -34,7 +34,7 @@ module.exports.getUser = (req, res) => {
 
   User.findById(userId)
     .orFail(() => new Error("NotFound"))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "CastError") {
         res
@@ -61,7 +61,7 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
     { new: true, runValidators: true }
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
         res.status(BAD_REQUEST).send({
@@ -85,7 +85,7 @@ module.exports.updateUser = (req, res) => {
     { new: true, runValidators: true }
   )
     .orFail(() => new Error("NotFound"))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
         res.status(BAD_REQUEST).send({
