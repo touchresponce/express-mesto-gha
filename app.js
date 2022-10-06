@@ -1,9 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const { celebrate, Joi, errors } = require("celebrate");
+const { errors } = require("celebrate");
 const { login, createUser } = require("./controllers/users");
 const auth = require("./middlewares/auth");
+const handleError = require("./middlewares/handleError");
+// celebrate
+const {
+  validationLogin,
+  validationCreateUser,
+} = require("./middlewares/validations");
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -13,40 +19,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect("mongodb://localhost:27017/mestodb");
 
-// вход
-app.post(
-  "/signin",
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(6),
-    }),
-  }),
-  login
-);
+app.post("/signin", validationLogin, login); // вход
+app.post("/signup", validationCreateUser, createUser); // регистрация
 
-// регистрация
-app.post(
-  "/signup",
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(6),
-    }),
-  }),
-  createUser
-);
-
-// app.use(auth);
-
-app.use(require("./routes/users"));
-app.use(require("./routes/cards"));
-
+app.use(auth);
+app.use(require("./routes"));
 app.use(errors()); // celebrate
-app.use((req, res) => {
-  res.status(404).send({ message: "Запрашиваемый ресурс не найден" });
-});
+app.use(handleError);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
+
+// пзда серваку при попытки создания юзера с эмейлом который уже есть в бд
+
+// проверить что возвращается про юзера(конкретно пароль и в какой форме возвращается)
+// GET/users - ДОЛЖЕН возвращать пароль хэшированием

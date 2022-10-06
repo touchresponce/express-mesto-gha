@@ -1,12 +1,22 @@
-const router = require('express').Router();
+const router = require("express").Router();
 const {
-  createUser, getUsers, getUser, updateAvatar, updateUser,
-} = require('../controllers/users');
+  getUsers,
+  getUser,
+  updateAvatar,
+  updateUser,
+  getCurrentUser,
+} = require("../controllers/users");
+// celebrate
+const {
+  validationUpdateUser,
+  validationUserId,
+  validationUpdateAvatar,
+} = require("../middlewares/validations");
 
-router.get('/users', getUsers); // получить всех юзеров
-router.post('/users', createUser); // создать юзера
-router.patch('/users/me', updateUser); // обновить юзера по айди
-router.get('/users/:userId', getUser); // получить юзера по айди
-router.patch('/users/me/avatar', updateAvatar); // обновить аватар
+router.get("/", getUsers); // получить всех юзеров
+router.get("/me", getCurrentUser); // инфа по текущему юзеру
+router.patch("/me", validationUpdateUser, updateUser); // обновить текущего юзера
+router.get("/:userId", validationUserId, getUser); // получить юзера по айди
+router.patch("/me/avatar", validationUpdateAvatar, updateAvatar); // обновить аватар текущего юзера
 
 module.exports = router;

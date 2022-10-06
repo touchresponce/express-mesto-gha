@@ -105,6 +105,23 @@ module.exports.updateUser = (req, res, next) => {
     .catch(next);
 };
 
+// инфа по текущему
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      throw new NotFound("Пользователь не найден");
+    })
+    .then((user) => res.status(200).send({ user }))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        throw new BadRequest("Переданы некорректные данные");
+      } else if (err.message === "NotFound") {
+        throw new NotFound("Пользователь не найден");
+      }
+    })
+    .catch(next);
+};
+
 // логин
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
