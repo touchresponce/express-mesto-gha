@@ -7,29 +7,35 @@ const ConflictError = require("../errors/ConflictError");
 
 // создать
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email } = req.body;
+  const { name, about, avatar, email, password } = req.body;
   bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
+    .hash(password, 10)
+    .then((hash) =>
       User.create({
         name,
         about,
         avatar,
         email,
         password: hash,
-      });
-    })
-    .then((user) => res.status(201).send(user))
+      })
+    )
+    .then((user) =>
+      res.status(201).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      })
+    )
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        throw new BadRequest(
-          "Переданы некорректные данные при создании пользователя"
-        );
-      } else if (err.code === 11000) {
-        throw new ConflictError("Пользователь с таким email уже существует");
+      if (err.code === 11000) {
+        next(new ConflictError("Пользователь с таким email уже существует"));
       }
-    })
-    .catch(next);
+      if (err.name === "ValidationError") {
+        next(new BadRequest("Переданы некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 // получить всех
@@ -47,7 +53,7 @@ module.exports.getUser = (req, res, next) => {
     .orFail(() => {
       throw new NotFound("Пользователь по указанному _id не найден");
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadRequest("Переданы некорректные данные"));
@@ -71,7 +77,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .orFail(() => {
       throw new NotFound("Пользователь с указанным _id не найден");
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
         throw new BadRequest(
@@ -94,7 +100,7 @@ module.exports.updateUser = (req, res, next) => {
     .orFail(() => {
       throw new NotFound("Пользователь с указанным _id не найден");
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
         throw new BadRequest(
@@ -111,7 +117,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     .orFail(() => {
       throw new NotFound("Пользователь не найден");
     })
-    .then((user) => res.status(200).send({ user }))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === "CastError") {
         throw new BadRequest("Переданы некорректные данные");
