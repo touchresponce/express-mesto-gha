@@ -1,5 +1,8 @@
 {
   "name": "mesto-express",
+  "description": "backend ",
+  "author": "touchresponce",
+  "homepage": "https://github.com/touchresponce/express-mesto-gha/blob/main/README.md",
   "version": "0.1.0",
   "main": "./app.js",
   "devDependencies": {
