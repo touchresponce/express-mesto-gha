@@ -77,15 +77,13 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .orFail(() => new Error('NotFound'))
+    .orFail(() => {
+      throw new NotFoundError('Передан несуществующий id карточки');
+    })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Передан несуществующий id карточки'));
-      }
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные'));
-      }
-      next(err);
+      } next(err);
     });
 };
