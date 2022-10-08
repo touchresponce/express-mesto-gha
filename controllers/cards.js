@@ -53,16 +53,20 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail(() => new Error('NotFound'))
+    // .orFail(() => new Error('NotFound'))
+    .orFail(() => {
+      throw new NotFoundError('Передан несуществующий id карточки');
+    })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Передан несуществующий id карточки'));
-      }
+      // if (err.message === 'NotFound') {
+      //   next(new NotFoundError('Передан несуществующий id карточки'));
+      // } else if (err.name === 'CastError') {
+      //   next(new BadRequest('Переданы некорректные данные'));
+      // } next(err);
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные'));
-      }
-      next(err);
+      } next(err);
     });
 };
 
