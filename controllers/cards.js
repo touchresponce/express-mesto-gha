@@ -14,8 +14,9 @@ module.exports.createCard = async (req, res, next) => {
       next(
         new BadRequest('Переданы некорректные данные при создании карточки.'),
       );
+    } else {
+      next(err);
     }
-    next(err);
   }
 };
 
@@ -30,27 +31,18 @@ module.exports.getCards = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
-    .orFail(() => new Error('NotFound'))
-    .then((card) => {
-      if (req.user._id.toString() === card.owner.toString()) {
-        card.remove();
-        res.send({ message: 'Карточка удалена' });
-      } else {
-        throw new Error('AccessError');
-      }
+    .orFail(() => {
+      throw new NotFoundError('Карточка с указанным _id не найдена');
     })
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Карточка с указанным _id не найдена'));
+    .then((card) => {
+      if (!req.user._id.toString() === card.owner.toString()) {
+        return next(new ForbiddenError('Вы не можете удалить чужую карточку'));
       }
-      if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные'));
-      }
-      if (err.message === 'AccessError') {
-        next(new ForbiddenError('Вы не можете удалить чужую карточку'));
-      }
-      next(err);
-    });
+      return card.remove()
+        .then(() => {
+          res.send({ message: 'Карточка удалена' });
+        });
+    }).catch(next);
 };
 
 // лайк
