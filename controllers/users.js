@@ -28,11 +28,9 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует'));
-      }
-      if (err.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные'));
-      }
-      next(err);
+      } next(err);
     });
 };
 
@@ -55,11 +53,7 @@ module.exports.getUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные'));
-      }
-      if (err.message === 'NotFound') {
-        next(new NotFound('Пользователь по указанному _id не найден'));
-      }
-      next(err);
+      } next(err);
     });
 };
 
