@@ -69,10 +69,9 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      }
-    })
-    .catch(next);
+        next(new BadRequest('Переданы некорректные данные'));
+      } next(err);
+    });
 };
 
 // обновить текущего
@@ -90,10 +89,9 @@ module.exports.updateUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      }
-    })
-    .catch(next);
+        next(new BadRequest('Переданы некорректные данные'));
+      } next(err);
+    });
 };
 
 // инфа по текущему
@@ -105,12 +103,9 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      } else if (err.message === 'NotFound') {
-        throw new NotFound('Пользователь не найден');
-      }
-    })
-    .catch(next);
+        next(new BadRequest('Переданы некорректные данные'));
+      } next(err);
+    });
 };
 
 // логин
